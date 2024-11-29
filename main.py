@@ -51,16 +51,18 @@ if __name__ == "__main__":
             data = None
 
     if data is not None:
-        # Prédire les valeurs cibles pour les données où 'margin_low' est null
-        columns = ['diagonal', 'height_left', 'height_right', 'margin_up', 'length']
-        data_null_margin_low = data[data['margin_low'].isna()]
-        X_null = data_null_margin_low[columns]
-        X_null_poly = loaded_poly.transform(X_null)
-        X_null_scaled = loaded_scaler.transform(X_null_poly)
-        pred = loaded_gbr.predict(X_null_scaled[:, selected_features_linear])
 
-        # Remplacer les valeurs manquantes
-        data.loc[data['margin_low'].isna(), 'margin_low'] = pred
+        if data['margin_low'].isna().sum() > 0:
+            # Prédire les valeurs cibles pour les données où 'margin_low' est null
+            columns = ['diagonal', 'height_left', 'height_right', 'margin_up', 'length']
+            data_null_margin_low = data[data['margin_low'].isna()]
+            X_null = data_null_margin_low[columns]
+            X_null_poly = loaded_poly.transform(X_null)
+            X_null_scaled = loaded_scaler.transform(X_null_poly)
+            pred = loaded_gbr.predict(X_null_scaled[:, selected_features_linear])
+
+            # Remplacer les valeurs manquantes
+            data.loc[data['margin_low'].isna(), 'margin_low'] = pred
 
         # Prédire la variable is_genuine
         columns = ['margin_low', 'length', 'margin_up', 'diagonal', 'height_left', 'height_right']
